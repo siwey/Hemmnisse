@@ -54,13 +54,18 @@ for(i in 1:length(Tables)) {
   eval(parse(text=paste(paste0(paste0("xlsx_exa_", Tables[i]), "<- eval(parse(text=paste0(paste0('restr_table(xlsx_exa_', Tables[i]),',Dat)')))"))))
   #xlsx_exa_Demand <- eval(parse(text=paste0(paste0("restr_table(xlsx_exa_", Tables[i]),",Dat)")))
 }
-  
+
 for (j in 1:length(Tables)) {
   for(i in 1:length(Branches)) { 
     #Last value of the time series obstacles
     eval(parse(text=paste(paste0("TS_", Tables[j]), "<- eval(parse(text=paste0(paste0(paste0(paste0(paste0(paste0('c(TS_',Tables[j]),',tail(xlsx_exa_'), Tables[j]),'$'),Branches[i]),',n=1))')))")))
-    #Mean of the time series obstacles
-    eval(parse(text=paste(paste0("TS_mean_", Tables[j]), "<- eval(parse(text=paste0(paste0(paste0(paste0(paste0(paste0('c(TS_mean_',Tables[j]),',mean(as.numeric(xlsx_exa_'), Tables[j]),'$'),Branches[i]),')))')))")))
+    #substract last value for calculating mean
+    eval(parse(text=paste('tmp', "<- eval(parse(text=paste0(paste0(paste0(paste0('mean(as.numeric(head(xlsx_exa_', Tables[j]),'$'),Branches[i]),',-1)))')))")))
+    #Corrected (minus last value) mean of the time series obstacles
+    eval(parse(text=paste(paste0("TS_mean_", Tables[j]), "<- eval(parse(text=paste0(paste0('c(TS_mean_',Tables[j]),',tmp)')))")))
+    
+    #Mean (with all data) of the time series obstacles
+    #eval(parse(text=paste(paste0("TS_mean_", Tables[j]), "<- eval(parse(text=paste0(paste0(paste0(paste0(paste0(paste0('c(TS_mean_',Tables[j]),',mean(as.numeric(xlsx_exa_'), Tables[j]),'$'),Branches[i]),')))')))")))
   }
 }
 
