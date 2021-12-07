@@ -8,10 +8,12 @@ library(jsonlite)
 library(tidyverse)
 library(readxl)
 library(zoo)
+library(readr)
 
 Dat="2011 Q1"
 Tables <- list('Demand','Fin_Sit','M_AK','No_probl','oth_probl',"tech_Kap")
-Branches <- list('Bau','MEM','Pharma','IT','Gesundheit','Gastgewerbe','Grosshandel','Finanzen')
+#Branches <- #list('Bau','MEM','Pharma','IT','Gesundheit','Gastgewerbe','Grosshandel','Finanzen')
+Branches <- list('IT','Gesundheit','Gastgewerbe', 'Grosshandel','Finanzen','Bau','MEM','Pharma')  
 
 #Define function to subset data
 restr_table <- function(a,dat) {
@@ -58,19 +60,20 @@ for(i in 1:length(Tables)) {
 for (j in 1:length(Tables)) {
   for(i in 1:length(Branches)) { 
     #Last value of the time series obstacles
-    eval(parse(text=paste(paste0("TS_", Tables[j]), "<- eval(parse(text=paste0(paste0(paste0(paste0(paste0(paste0('c(TS_',Tables[j]),',tail(xlsx_exa_'), Tables[j]),'$'),Branches[i]),',n=1))')))")))
+    eval(parse(text=paste(paste0("TS_", Tables[j]), "<- eval(parse(text=paste0(paste0(paste0(paste0(paste0(paste0('c(TS_',Tables[j]),',round(as.numeric(tail(xlsx_exa_'), Tables[j]),'$'),Branches[i]),',n=1)),0))')))")))
     #substract last value for calculating mean
     eval(parse(text=paste('tmp', "<- eval(parse(text=paste0(paste0(paste0(paste0('mean(as.numeric(head(xlsx_exa_', Tables[j]),'$'),Branches[i]),',-1)))')))")))
     #Corrected (minus last value) mean of the time series obstacles
-    eval(parse(text=paste(paste0("TS_mean_", Tables[j]), "<- eval(parse(text=paste0(paste0('c(TS_mean_',Tables[j]),',tmp)')))")))
+    eval(parse(text=paste(paste0("TS_mean_", Tables[j]), "<- eval(parse(text=paste0(paste0('c(TS_mean_',Tables[j]),',round(tmp,0))')))")))
     
     #Mean (with all data) of the time series obstacles
     #eval(parse(text=paste(paste0("TS_mean_", Tables[j]), "<- eval(parse(text=paste0(paste0(paste0(paste0(paste0(paste0('c(TS_mean_',Tables[j]),',mean(as.numeric(xlsx_exa_'), Tables[j]),'$'),Branches[i]),')))')))")))
   }
 }
 
-Branches[6] <- "Gastgew."
-Branches[7] <- "Grossh."
+
+Branches[3] <- "Gastgew."
+Branches[4] <- "Grossh."
 
 TS_Demand
 d <- data.frame(
@@ -85,6 +88,8 @@ d <- data.frame(
   NPr_m=TS_mean_No_probl
   #mean_val=V21
 )
+
+#d$AKM <- paste(round(d$AKM, 0), "%", sep="")
 
 d |>
   e_charts(nam) |>
@@ -102,6 +107,6 @@ d |>
   e_title("Hemmnisse",subtext="Saisonbereinigte Werte",sublink="www.focus50plus.ch", left="10%") |>
   e_tooltip(trigger="axis") |>
   #e_datazoom(type = "slider") |>
-  e_legend(orient = 'horizontal', left = 180, top = 30) |>
+  e_legend(orient = 'horizontal', left = 250, top = 25) |>
   e_format_y_axis(suffix = "%") |>
   e_toolbox_feature("saveAsImage")
